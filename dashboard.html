@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ovard — Buyer Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b12;
+    --bg-soft:#0d1420;
+    --panel:#111927;
+    --blue:#5ec8ff;
+    --blue-dim:#2f8fd1;
+    --blue-soft: rgba(94,200,255,0.08);
+    --text:#eef4fb;
+    --muted:#8ea0b5;
+    --line: rgba(238,244,251,0.09);
+    --radius: 14px;
+    --good:#5eeba0;
+    --warn:#ffcf5e;
+    --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    line-height:1.55;
+  }
+  a{color:inherit; text-decoration:none;}
+  .wrap{ max-width:760px; margin:0 auto; padding:0 24px; }
+
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(7,11,18,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; max-width:760px; margin:0 auto;
+  }
+  .logo{ font-weight:800; font-size:18px; letter-spacing:0.5px; }
+  .logo span{ color:var(--blue); }
+  .back-link{ font-size:13px; color:var(--muted); }
+  .back-link:hover{ color:var(--text); }
+
+  header.page-head{ padding:56px 24px 24px; text-align:center; }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:12px; letter-spacing:1px; font-weight:600;
+    color:var(--blue); background:var(--blue-soft); border:1px solid rgba(94,200,255,0.25);
+    padding:6px 14px; border-radius:20px; margin-bottom:18px;
+  }
+  h1{ font-size:32px; margin-bottom:10px; }
+  header.page-head p{ color:var(--muted); font-size:15px; }
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px;
+    margin-bottom:24px;
+  }
+  .panel h2{ font-size:18px; margin-bottom:6px; }
+  .panel .desc{ color:var(--muted); font-size:13.5px; margin-bottom:20px; }
+
+  label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; font-weight:600; }
+  input[type=text], textarea{
+    width:100%;
+    background:var(--bg-soft);
+    border:1px solid var(--line);
+    color:var(--text);
+    border-radius:10px;
+    padding:12px 14px;
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus{ border-color:var(--blue-dim); }
+  textarea{ min-height:160px; resize:vertical; font-family:ui-monospace, monospace; font-size:12.5px; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:11px 20px; border-radius:9px; border:none; cursor:pointer;
+    font-weight:700; font-size:13.5px; letter-spacing:0.2px;
+    background:var(--blue); color:#04101c;
+    transition:background 0.15s;
+  }
+  .btn:hover{ background:#7ed4ff; }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .btn-ghost{
+    background:transparent; border:1px solid var(--line); color:var(--text);
+  }
+  .btn-ghost:hover{ border-color:var(--blue); }
+  .btn-row{ display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+
+  .status-msg{ margin-top:12px; font-size:13.5px; }
+  .status-msg.ok{ color:var(--good); }
+  .status-msg.bad{ color:var(--bad); }
+  .status-msg.warn{ color:var(--warn); }
+
+  .stat-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+    gap:14px; margin-top:20px;
+  }
+  .stat-box{
+    background:var(--bg-soft); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px;
+  }
+  .stat-box .label{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+  .stat-box .value{ font-size:16px; font-weight:700; }
+  .value.good{ color:var(--good); }
+  .value.bad{ color:var(--bad); }
+  .value.warn{ color:var(--warn); }
+
+  .access-log{ margin-top:18px; }
+  .access-log .row{
+    display:flex; justify-content:space-between;
+    padding:9px 0; border-bottom:1px solid var(--line);
+    font-size:13px;
+  }
+  .access-log .row:last-child{ border-bottom:none; }
+  .badge{
+    font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px;
+    text-transform:uppercase; letter-spacing:0.3px;
+  }
+  .badge.ok, .badge.activated{ background:rgba(94,235,160,0.12); color:var(--good); }
+  .badge.mismatch{ background:rgba(255,107,107,0.12); color:var(--bad); }
+  .badge.revoked{ background:rgba(255,107,107,0.2); color:var(--bad); }
+
+  .hint{ font-size:12.5px; color:var(--muted); margin-top:10px; }
+  .hidden{ display:none !important; }
+
+  footer{ text-align:center; padding:40px 24px; color:var(--muted); font-size:12.5px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo">Ovard <span>Dashboard</span></div>
+    <a href="index.html" class="back-link">← Back to site</a>
+  </div>
+</nav>
+
+<header class="page-head">
+  <div class="eyebrow">BUYER PORTAL</div>
+  <h1>Manage your license</h1>
+  <p>Enter your license key to check its status, see recent device activity, reset your bound device, or get help with a crash.</p>
+</header>
+
+<div class="wrap">
+
+  <div class="panel">
+    <h2>Your license key</h2>
+    <p class="desc">This is your only login — nothing else is asked for. Your key never leaves this page except to talk to our license server.</p>
+    <label for="keyInput">License key</label>
+    <input type="text" id="keyInput" placeholder="OVARD-XXXX-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <div class="btn-row">
+      <button class="btn" id="loadBtn">Load status</button>
+    </div>
+    <div class="status-msg" id="loadMsg"></div>
+  </div>
+
+  <div class="panel hidden" id="statusPanel">
+    <h2>License status</h2>
+    <p class="desc" id="noteLine"></p>
+
+    <div class="stat-grid">
+      <div class="stat-box">
+        <div class="label">Activated</div>
+        <div class="value" id="statActivated">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Revoked</div>
+        <div class="value" id="statRevoked">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Devices seen</div>
+        <div class="value" id="statDevices">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Created</div>
+        <div class="value" id="statCreated">—</div>
+      </div>
+    </div>
+
+    <div class="access-log" id="accessLog"></div>
+    <p class="hint" id="deviceWarning"></p>
+  </div>
+
+  <div class="panel hidden" id="resetPanel">
+    <h2>Reset bound device</h2>
+    <p class="desc">Getting a new PC, or your key won't activate because it's already bound elsewhere? Reset unbinds it so the next launch binds fresh. Limited to once every 3 days to keep a shared key from being bounced between machines on demand.</p>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="resetBtn">Reset my device</button>
+    </div>
+    <div class="status-msg" id="resetMsg"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Crash log helper</h2>
+    <p class="desc">Paste your crash report or latest.log below. We'll copy it to your clipboard and open <a href="https://mcdoctor.ai" target="_blank" style="color:var(--blue)">MCDoctor.ai</a> in a new tab — paste it there for a free AI-generated explanation of what went wrong. We don't send this anywhere ourselves; MCDoctor.ai's free tier works straight from their site with no account needed.</p>
+    <label for="crashInput">Crash log / latest.log</label>
+    <textarea id="crashInput" placeholder="Paste the contents of your crash-report or latest.log here..."></textarea>
+    <div class="btn-row">
+      <button class="btn" id="crashBtn">Copy log &amp; open MCDoctor.ai</button>
+    </div>
+    <div class="status-msg" id="crashMsg"></div>
+  </div>
+
+</div>
+
+<footer>Ovard — buyer dashboard. Having trouble? Ask in Discord.</footer>
+
+<script>
+const API_BASE = "https://license-setup-for-ovard-production.up.railway.app";
+
+const keyInput = document.getElementById("keyInput");
+const loadBtn = document.getElementById("loadBtn");
+const loadMsg = document.getElementById("loadMsg");
+const statusPanel = document.getElementById("statusPanel");
+const resetPanel = document.getElementById("resetPanel");
+const resetBtn = document.getElementById("resetBtn");
+const resetMsg = document.getElementById("resetMsg");
+
+function setMsg(el, text, kind) {
+  el.textContent = text;
+  el.className = "status-msg" + (kind ? " " + kind : "");
+}
+
+function fmtDate(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function fmtRelative(iso) {
+  if (!iso) return "";
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return mins + "m ago";
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return hours + "h ago";
+  const days = Math.round(hours / 24);
+  return days + "d ago";
+}
+
+async function loadStatus() {
+  const key = keyInput.value.trim();
+  if (!key) {
+    setMsg(loadMsg, "Enter your license key first.", "bad");
+    return;
+  }
+
+  loadBtn.disabled = true;
+  setMsg(loadMsg, "Loading…", "");
+  statusPanel.classList.add("hidden");
+  resetPanel.classList.add("hidden");
+
+  try {
+    const res = await fetch(API_BASE + "/api/portal/status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+
+    if (!data.found) {
+      setMsg(loadMsg, "No license found with that key. Double-check it and try again.", "bad");
+      return;
+    }
+
+    setMsg(loadMsg, "", "");
+    renderStatus(key, data);
+  } catch (err) {
+    setMsg(loadMsg, "Couldn't reach the license server. Check your connection and try again.", "bad");
+  } finally {
+    loadBtn.disabled = false;
+  }
+}
+
+function renderStatus(key, data) {
+  statusPanel.classList.remove("hidden");
+
+  document.getElementById("noteLine").textContent = data.note ? "Note: " + data.note : "";
+
+  const activatedEl = document.getElementById("statActivated");
+  activatedEl.textContent = data.activated ? "Yes" : "Not yet";
+  activatedEl.className = "value " + (data.activated ? "good" : "warn");
+
+  const revokedEl = document.getElementById("statRevoked");
+  revokedEl.textContent = data.revoked ? "Yes" : "No";
+  revokedEl.className = "value " + (data.revoked ? "bad" : "good");
+
+  const devicesEl = document.getElementById("statDevices");
+  devicesEl.textContent = data.distinctDeviceCount;
+  devicesEl.className = "value " + (data.distinctDeviceCount > 1 ? "warn" : "good");
+
+  document.getElementById("statCreated").textContent = fmtDate(data.createdAt);
+
+  const warnEl = document.getElementById("deviceWarning");
+  if (data.distinctDeviceCount > 1) {
+    warnEl.textContent = "This key has been tried from more than one device. If that wasn't you, your key may have been shared or leaked — consider asking us to revoke and reissue it.";
+    warnEl.style.color = "var(--warn)";
+  } else {
+    warnEl.textContent = "";
+  }
+
+  const logEl = document.getElementById("accessLog");
+  logEl.innerHTML = "";
+  if (!data.recentAccess || data.recentAccess.length === 0) {
+    logEl.innerHTML = '<p class="hint">No activity yet.</p>';
+  } else {
+    data.recentAccess.forEach((entry) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML =
+        '<span class="badge ' + entry.outcome + '">' + entry.outcome + "</span>" +
+        '<span style="color:var(--muted)">' + fmtRelative(entry.at) + "</span>";
+      logEl.appendChild(row);
+    });
+  }
+
+  if (!data.revoked) {
+    resetPanel.classList.remove("hidden");
+    resetBtn.dataset.key = key;
+    if (!data.canSelfReset) {
+      resetBtn.disabled = true;
+      setMsg(resetMsg, "You can reset again after " + fmtDate(data.nextSelfResetAt) + ".", "warn");
+    } else {
+      resetBtn.disabled = false;
+      setMsg(resetMsg, "", "");
+    }
+  }
+}
+
+async function doReset() {
+  const key = keyInput.value.trim();
+  if (!key) return;
+
+  resetBtn.disabled = true;
+  setMsg(resetMsg, "Resetting…", "");
+
+  try {
+    const res = await fetch(API_BASE + "/api/portal/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key }),
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      setMsg(resetMsg, "Done — your key is unbound. Launch the game on the new machine to bind it fresh.", "ok");
+    } else {
+      setMsg(resetMsg, data.message || "Couldn't reset right now.", "bad");
+    }
+  } catch (err) {
+    setMsg(resetMsg, "Couldn't reach the license server. Try again in a moment.", "bad");
+  } finally {
+    resetBtn.disabled = false;
+    loadStatus();
+  }
+}
+
+loadBtn.addEventListener("click", loadStatus);
+keyInput.addEventListener("keydown", (e) => { if (e.key === "Enter") loadStatus(); });
+resetBtn.addEventListener("click", doReset);
+
+// --- Crash log helper ---
+const crashInput = document.getElementById("crashInput");
+const crashBtn = document.getElementById("crashBtn");
+const crashMsg = document.getElementById("crashMsg");
+
+crashBtn.addEventListener("click", async () => {
+  const log = crashInput.value.trim();
+  if (!log) {
+    setMsg(crashMsg, "Paste a crash log first.", "bad");
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(log);
+    setMsg(crashMsg, "Copied to clipboard — opening MCDoctor.ai, paste it there.", "ok");
+  } catch (err) {
+    setMsg(crashMsg, "Couldn't copy automatically — select and copy the text manually, then paste it on MCDoctor.ai.", "warn");
+  }
+
+  window.open("https://mcdoctor.ai", "_blank");
+});
+</script>
+
+</body>
+</html>
